@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Scary Story MP3 Maker</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="workspace">
+        <div class="composer">
+          <div class="brand">
+            <span class="mark" aria-hidden="true"></span>
+            <div>
+              <h1>Scary Story MP3 Maker</h1>
+              <p>Generate an original horror story and narration file.</p>
+            </div>
+          </div>
+
+          <form id="story-form">
+            <label for="topic">Story idea</label>
+            <textarea
+              id="topic"
+              name="topic"
+              rows="7"
+              placeholder="A midnight radio host keeps receiving calls from listeners who died years ago..."
+              required
+            ></textarea>
+
+            <div class="control-grid">
+              <label>
+                Length
+                <select name="length">
+                  <option value="short">Short</option>
+                  <option value="medium" selected>Medium</option>
+                  <option value="long">Long</option>
+                </select>
+              </label>
+
+              <label>
+                Style
+                <select name="style">
+                  <option value="campfire">Campfire</option>
+                  <option value="analog">Analog</option>
+                  <option value="urban">Urban legend</option>
+                  <option value="found-footage">Found footage</option>
+                </select>
+              </label>
+
+              <label>
+                Voice
+                <select name="voice">
+                  <option value="alloy">Alloy</option>
+                  <option value="ash">Ash</option>
+                  <option value="ballad">Ballad</option>
+                  <option value="coral">Coral</option>
+                  <option value="echo">Echo</option>
+                  <option value="fable">Fable</option>
+                  <option value="nova">Nova</option>
+                  <option value="onyx" selected>Onyx</option>
+                  <option value="sage">Sage</option>
+                  <option value="shimmer">Shimmer</option>
+                </select>
+              </label>
+            </div>
+
+            <button id="generate-button" type="submit">Generate MP3</button>
+          </form>
+        </div>
+
+        <aside class="result-panel">
+          <div class="status" id="status">Ready</div>
+          <h2 id="title">Your story will appear here</h2>
+          <audio id="player" controls hidden></audio>
+          <a id="download" class="download" href="#" download hidden>Download MP3</a>
+          <article id="story"></article>
+        </aside>
+      </section>
+    </main>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>
