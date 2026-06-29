@@ -10,9 +10,15 @@ class Settings(BaseSettings):
     openai_tts_model: str = "gpt-4o-mini-tts"
     elevenlabs_api_key: str = ""
     elevenlabs_voice_id: str = ""
+    app_host: str = "127.0.0.1"
+    app_port: int = 8000
     output_dir: str = "generated"
 
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
 
     @property
     def output_path(self) -> Path:

@@ -3,6 +3,7 @@ from pathlib import Path
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
+from openai import OpenAIError
 
 from app.config import Settings, get_settings
 from app.schemas import GenerateRequest, GenerateResponse
@@ -31,6 +32,8 @@ def generate(
         return create_story_mp3(settings, request)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except OpenAIError as exc:
+        raise HTTPException(status_code=502, detail=f"OpenAI API error: {exc}") from exc
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"Generation failed: {exc}") from exc
 

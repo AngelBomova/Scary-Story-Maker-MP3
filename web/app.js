@@ -15,6 +15,33 @@ function setStatus(message) {
   statusEl.textContent = message;
 }
 
+function getErrorMessage(body) {
+  if (typeof body.detail === "string") {
+    return body.detail;
+  }
+
+  if (Array.isArray(body.detail)) {
+    return body.detail
+      .map((error) => {
+        const field = Array.isArray(error.loc) ? error.loc.join(".") : "request";
+        return `${field}: ${error.msg}`;
+      })
+      .join(" ");
+  }
+
+  return "Generation failed.";
+}
+
+async function readResponseBody(response) {
+  const contentType = response.headers.get("content-type") || "";
+  if (contentType.includes("application/json")) {
+    return response.json();
+  }
+
+  const text = await response.text();
+  return { detail: text || response.statusText };
+}
+
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
   const data = new FormData(form);
@@ -37,9 +64,9 @@ form.addEventListener("submit", async (event) => {
       body: JSON.stringify(payload),
     });
 
-    const body = await response.json();
+    const body = await readResponseBody(response);
     if (!response.ok) {
-      throw new Error(body.detail || "Generation failed.");
+      throw new Error(getErrorMessage(body));
     }
 
     titleEl.textContent = body.title;
