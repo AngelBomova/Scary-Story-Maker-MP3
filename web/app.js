@@ -5,6 +5,9 @@ const titleEl = document.querySelector("#title");
 const storyEl = document.querySelector("#story");
 const player = document.querySelector("#player");
 const download = document.querySelector("#download");
+const ambience = document.querySelector("#ambience");
+const ambienceVolume = document.querySelector("#ambience-volume");
+const ambienceValue = document.querySelector("#ambience-value");
 
 function setBusy(isBusy) {
   button.disabled = isBusy;
@@ -13,6 +16,10 @@ function setBusy(isBusy) {
 
 function setStatus(message) {
   statusEl.textContent = message;
+}
+
+function syncAmbienceControls() {
+  ambienceValue.textContent = `${ambienceVolume.value}%`;
 }
 
 function getErrorMessage(body) {
@@ -48,8 +55,9 @@ form.addEventListener("submit", async (event) => {
   const payload = {
     topic: data.get("topic").trim(),
     length: data.get("length"),
-    style: data.get("style"),
     voice: data.get("voice"),
+    ambience: data.get("ambience"),
+    ambience_volume: Number(data.get("ambience_volume") || 0),
   };
 
   setBusy(true);
@@ -83,3 +91,7 @@ form.addEventListener("submit", async (event) => {
     setBusy(false);
   }
 });
+
+ambience.addEventListener("change", syncAmbienceControls);
+ambienceVolume.addEventListener("input", syncAmbienceControls);
+syncAmbienceControls();

@@ -135,6 +135,11 @@ select {
   padding: 0 11px;
 }
 
+input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent-2);
+}
+
 textarea:focus,
 select:focus {
   border-color: var(--focus);

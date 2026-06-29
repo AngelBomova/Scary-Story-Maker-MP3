@@ -39,16 +39,6 @@
               </label>
 
               <label>
-                Style
-                <select name="style">
-                  <option value="campfire">Campfire</option>
-                  <option value="analog">Analog</option>
-                  <option value="urban">Urban legend</option>
-                  <option value="found-footage">Found footage</option>
-                </select>
-              </label>
-
-              <label>
                 Voice
                 <select name="voice">
                   <option value="alloy">Alloy</option>
@@ -62,6 +52,32 @@
                   <option value="sage">Sage</option>
                   <option value="shimmer">Shimmer</option>
                 </select>
+              </label>
+
+              <label>
+                Background
+                <select name="ambience" id="ambience">
+                  <option value="none" selected>None</option>
+                  <option value="rain">Rain</option>
+                  <option value="stormy-rain">Stormy rain</option>
+                  <option value="campfire">Campfire</option>
+                  <option value="urban-scare">Urban scare</option>
+                  <option value="woods-night">Woods at night</option>
+                  <option value="old-house">Old house</option>
+                </select>
+              </label>
+
+              <label>
+                Background volume <span id="ambience-value">0%</span>
+                <input
+                  id="ambience-volume"
+                  name="ambience_volume"
+                  type="range"
+                  min="0"
+                  max="100"
+                  value="0"
+                  step="5"
+                />
               </label>
             </div>
 
