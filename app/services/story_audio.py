@@ -1,7 +1,9 @@
 import re
+import subprocess
 from pathlib import Path
 from uuid import uuid4
 
+import imageio_ffmpeg
 from openai import OpenAI
 
 from app.config import Settings
@@ -23,6 +25,19 @@ AMBIENCE_GUIDE = {
     "urban-scare": "a late-night city atmosphere with empty streets, distant traffic, and uneasy apartments",
     "woods-night": "woods at night with insects, branches, far-off movement, and deep quiet",
     "old-house": "an old house with floorboards, vents, pipes, and rooms that feel occupied",
+}
+
+
+BASE_DIR = Path(__file__).resolve().parents[2]
+AMBIENCE_DIR = BASE_DIR / "ambience"
+
+AMBIENCE_FILES = {
+    "rain": "rain.mp3",
+    "stormy-rain": "stormy-rain.mp3",
+    "campfire": "campfire.mp3",
+    "urban-scare": "urban-scare.mp3",
+    "woods-night": "woods-night.mp3",
+    "old-house": "old-house.mp3",
 }
 
 
@@ -89,6 +104,51 @@ def generate_openai_mp3(settings: Settings, text: str, voice: str, output_file: 
     output_file.write_bytes(audio.content)
 
 
+def mix_ambience(narration_file: Path, request: GenerateRequest) -> Path:
+    if request.ambience == "none" or request.ambience_volume <= 0:
+        return narration_file
+
+    ambience_name = AMBIENCE_FILES.get(request.ambience)
+    if not ambience_name:
+        return narration_file
+
+    ambience_file = AMBIENCE_DIR / ambience_name
+    if not ambience_file.exists():
+        raise ValueError(
+            f"Missing ambience file: {ambience_file}. Add {ambience_name} to the ambience folder."
+        )
+
+    mixed_file = narration_file.with_name(f"{narration_file.stem}-mixed.mp3")
+    ffmpeg_exe = imageio_ffmpeg.get_ffmpeg_exe()
+    background_volume = max(0, min(request.ambience_volume, 100)) / 100
+
+    command = [
+        ffmpeg_exe,
+        "-y",
+        "-i",
+        str(narration_file),
+        "-stream_loop",
+        "-1",
+        "-i",
+        str(ambience_file),
+        "-filter_complex",
+        f"[1:a]volume={background_volume}[bg];[0:a][bg]amix=inputs=2:duration=first:dropout_transition=0",
+        "-c:a",
+        "libmp3lame",
+        "-q:a",
+        "4",
+        str(mixed_file),
+    ]
+
+    result = subprocess.run(command, capture_output=True, text=True, check=False)
+    if result.returncode != 0:
+        raise RuntimeError(f"Audio mix failed: {result.stderr.strip()}")
+
+    narration_file.unlink(missing_ok=True)
+    mixed_file.replace(narration_file)
+    return narration_file
+
+
 def create_story_mp3(settings: Settings, request: GenerateRequest) -> dict[str, str]:
     title, story = generate_story(settings, request)
     settings.output_path.mkdir(parents=True, exist_ok=True)
@@ -98,6 +158,7 @@ def create_story_mp3(settings: Settings, request: GenerateRequest) -> dict[str, 
 
     narration_text = f"{title}.\n\n{story}"
     generate_openai_mp3(settings, narration_text, request.voice, output_file)
+    mix_ambience(output_file, request)
 
     return {
         "title": title,

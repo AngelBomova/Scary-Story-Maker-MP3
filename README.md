@@ -32,3 +32,18 @@ Then open `http://127.0.0.1:8000`.
 Keep real keys in `.env`. The `.gitignore` file keeps `.env` out of version control.
 
 `OPENAI_API_KEY` is required. `ELEVENLABS_API_KEY` and `ELEVENLABS_VOICE_ID` are optional. If ElevenLabs values are blank, the app uses OpenAI text-to-speech.
+
+## Background Ambience
+
+Put background MP3 files in the `ambience` folder with these exact names:
+
+```text
+rain.mp3
+stormy-rain.mp3
+campfire.mp3
+urban-scare.mp3
+woods-night.mp3
+old-house.mp3
+```
+
+Restart the server after adding or replacing ambience files.
