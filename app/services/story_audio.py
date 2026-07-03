@@ -11,9 +11,9 @@ from app.schemas import GenerateRequest
 
 
 LENGTH_GUIDE = {
-    "short": "650 to 850 words",
-    "medium": "1,100 to 1,500 words",
-    "long": "1,800 to 2,400 words",
+    "short": "700 to 900 words",
+    "medium": "1000 to 1,500 words",
+    "long": "1,600 to 2,300 words",
 }
 
 
