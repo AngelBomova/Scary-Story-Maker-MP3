@@ -40,6 +40,8 @@ AMBIENCE_FILES = {
     "old-house": "old-house.mp3",
 }
 
+MAX_TOPIC_CHARS = 1200
+
 
 def require_openai_key(settings: Settings) -> None:
     if not settings.openai_api_key.strip():
@@ -54,18 +56,18 @@ def slugify(value: str) -> str:
 def build_story_prompt(request: GenerateRequest) -> str:
     length = LENGTH_GUIDE[request.length.value]
     ambience = AMBIENCE_GUIDE.get(request.ambience, AMBIENCE_GUIDE["none"])
+    topic = request.topic.strip()
+    if len(topic) > MAX_TOPIC_CHARS:
+        topic = topic[:MAX_TOPIC_CHARS].rsplit(" ", 1)[0]
     return (
-        "Write an original scary story for narration.\n"
-        f"Topic: {request.topic}\n"
-        f"Length: {length}\n"
-        f"Background ambience to imagine while writing: {ambience}\n\n"
-        "Aim for the calm, believable pacing of popular true-scary-story narration channels: "
-        "plainspoken first-person or close third-person narration, realistic setup, slow escalation, "
-        "specific ordinary details, short moments of silence implied by paragraph breaks, and a final image "
-        "that lingers. Do not copy any creator's exact wording, catchphrases, structure, or stories.\n\n"
-        "Make every paragraph easy to read aloud. Build dread gradually before the reveal. "
-        "Avoid graphic sexual content, hateful content, real-person defamation, or instructions for harm. "
-        "Return only the story with a short title on the first line."
+        "Write an original scary story for spoken narration.\n"
+        f"Topic: {topic}\n"
+        f"Target length: {length}\n"
+        f"Background mood: {ambience}\n\n"
+        "Use calm, believable pacing like a polished true-scary-story channel: realistic setup, slow dread, "
+        "plainspoken narration, clear paragraphs, and a lingering ending. Do not imitate any creator's exact wording, "
+        "catchphrases, structure, or stories. Avoid graphic sexual content, hateful content, real-person defamation, "
+        "or instructions for harm. Return only the story with a short title on the first line."
     )
 
 
