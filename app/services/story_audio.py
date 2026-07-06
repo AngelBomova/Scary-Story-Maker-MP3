@@ -41,6 +41,7 @@ AMBIENCE_FILES = {
 }
 
 MAX_TOPIC_CHARS = 1200
+MAX_TTS_CHARS = 1600
 
 
 def require_openai_key(settings: Settings) -> None:
@@ -106,6 +107,98 @@ def generate_openai_mp3(settings: Settings, text: str, voice: str, output_file: 
     output_file.write_bytes(audio.content)
 
 
+def split_narration_text(text: str, max_chars: int = MAX_TTS_CHARS) -> list[str]:
+    paragraphs = [paragraph.strip() for paragraph in text.split("\n\n") if paragraph.strip()]
+    chunks: list[str] = []
+    current = ""
+
+    for paragraph in paragraphs:
+        candidate = paragraph if not current else f"{current}\n\n{paragraph}"
+        if len(candidate) <= max_chars:
+            current = candidate
+            continue
+
+        if current:
+            chunks.append(current)
+            current = ""
+
+        if len(paragraph) <= max_chars:
+            current = paragraph
+            continue
+
+        sentences = re.split(r"(?<=[.!?])\s+", paragraph)
+        sentence_buffer = ""
+        for sentence in sentences:
+            candidate = sentence if not sentence_buffer else f"{sentence_buffer} {sentence}"
+            if len(candidate) <= max_chars:
+                sentence_buffer = candidate
+                continue
+
+            if sentence_buffer:
+                chunks.append(sentence_buffer)
+            sentence_buffer = sentence
+
+        if sentence_buffer:
+            if len(sentence_buffer) <= max_chars:
+                current = sentence_buffer
+            else:
+                for start in range(0, len(sentence_buffer), max_chars):
+                    chunks.append(sentence_buffer[start : start + max_chars])
+
+    if current:
+        chunks.append(current)
+
+    return chunks or [text[:max_chars]]
+
+
+def render_narration_chunks(settings: Settings, narration_text: str, voice: str, output_file: Path) -> None:
+    chunks = split_narration_text(narration_text)
+    if len(chunks) == 1:
+        generate_openai_mp3(settings, chunks[0], voice, output_file)
+        return
+
+    ffmpeg_exe = imageio_ffmpeg.get_ffmpeg_exe()
+    temp_files: list[Path] = []
+    temp_output = output_file.with_name(f"{output_file.stem}-joined.mp3")
+    concat_file = output_file.with_name(f"{output_file.stem}-concat.txt")
+
+    try:
+        for index, chunk in enumerate(chunks):
+            chunk_file = output_file.with_name(f"{output_file.stem}-part-{index:03d}.mp3")
+            generate_openai_mp3(settings, chunk, voice, chunk_file)
+            temp_files.append(chunk_file)
+
+        concat_file.write_text(
+            "\n".join(f"file '{path.as_posix()}'" for path in temp_files),
+            encoding="utf-8",
+        )
+
+        command = [
+            ffmpeg_exe,
+            "-y",
+            "-f",
+            "concat",
+            "-safe",
+            "0",
+            "-i",
+            str(concat_file),
+            "-c",
+            "copy",
+            str(temp_output),
+        ]
+
+        result = subprocess.run(command, capture_output=True, text=True, check=False)
+        if result.returncode != 0:
+            raise RuntimeError(f"Audio concat failed: {result.stderr.strip()}")
+
+        temp_output.replace(output_file)
+    finally:
+        for path in temp_files:
+            path.unlink(missing_ok=True)
+        concat_file.unlink(missing_ok=True)
+        temp_output.unlink(missing_ok=True)
+
+
 def mix_ambience(narration_file: Path, request: GenerateRequest) -> Path:
     if request.ambience == "none" or request.ambience_volume <= 0:
         return narration_file
@@ -159,7 +252,7 @@ def create_story_mp3(settings: Settings, request: GenerateRequest) -> dict[str, 
     output_file = settings.output_path / filename
 
     narration_text = f"{title}.\n\n{story}"
-    generate_openai_mp3(settings, narration_text, request.voice, output_file)
+    render_narration_chunks(settings, narration_text, request.voice, output_file)
     mix_ambience(output_file, request)
 
     return {
