@@ -10,7 +10,7 @@ class StoryLength(str, Enum):
 
 
 class GenerateRequest(BaseModel):
-    topic: str = Field(min_length=3, max_length=15000)
+    topic: str = Field(min_length=3, max_length=25000)
     length: StoryLength = StoryLength.medium
     voice: str = "alloy"
     ambience: str = "none"
