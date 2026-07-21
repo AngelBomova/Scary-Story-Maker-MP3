@@ -1,14 +1,14 @@
 :root {
-  color-scheme: dark;
-  --bg: #111111;
-  --panel: #1b1a18;
-  --panel-2: #24211e;
-  --text: #f5f0e8;
-  --muted: #b7aa9a;
-  --line: #3a332d;
-  --accent: #c44536;
-  --accent-2: #e0a84f;
-  --focus: #6fb1c8;
+  color-scheme: light;
+  --bg: #f6f6f4;
+  --panel: #ffffff;
+  --text: #1f1f1f;
+  --muted: #666666;
+  --line: #d8d8d8;
+  --field: #ffffff;
+  --button: #242424;
+  --button-hover: #000000;
+  --focus: #2f6f9f;
 }
 
 * {
@@ -22,37 +22,33 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background:
-    linear-gradient(135deg, rgba(196, 69, 54, 0.18), transparent 34%),
-    radial-gradient(circle at 75% 12%, rgba(224, 168, 79, 0.12), transparent 28%),
-    var(--bg);
+  background: var(--bg);
   color: var(--text);
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 .app-shell {
-  width: min(1180px, calc(100% - 32px));
+  width: min(1080px, calc(100% - 32px));
   margin: 0 auto;
   padding: 32px 0;
 }
 
 .workspace {
   display: grid;
-  grid-template-columns: minmax(320px, 430px) minmax(0, 1fr);
-  gap: 20px;
-  align-items: stretch;
+  grid-template-columns: 340px minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
 }
 
 .composer,
 .result-panel {
+  background: var(--panel);
   border: 1px solid var(--line);
-  background: rgba(27, 26, 24, 0.92);
-  border-radius: 8px;
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.32);
+  border-radius: 6px;
 }
 
 .composer {
-  padding: 22px;
+  padding: 20px;
 }
 
 .result-panel {
@@ -62,21 +58,11 @@ body {
 }
 
 .brand {
-  display: flex;
-  gap: 14px;
-  align-items: center;
-  margin-bottom: 24px;
+  margin-bottom: 22px;
 }
 
 .mark {
-  width: 42px;
-  height: 42px;
-  flex: 0 0 auto;
-  border-radius: 50%;
-  background:
-    linear-gradient(145deg, transparent 42%, rgba(0, 0, 0, 0.38) 43%),
-    radial-gradient(circle at 50% 42%, var(--accent-2) 0 18%, var(--accent) 19% 55%, #421c18 56%);
-  border: 1px solid rgba(245, 240, 232, 0.22);
+  display: none;
 }
 
 h1,
@@ -86,8 +72,10 @@ p {
 }
 
 h1 {
-  font-size: clamp(1.55rem, 3vw, 2.35rem);
-  line-height: 1.05;
+  max-width: 280px;
+  font-size: 24px;
+  line-height: 1.1;
+  font-weight: 600;
 }
 
 .brand p,
@@ -95,55 +83,60 @@ h1 {
   color: var(--muted);
 }
 
+.brand p {
+  margin-top: 6px;
+  line-height: 1.4;
+}
+
 form {
   display: grid;
-  gap: 16px;
+  gap: 14px;
 }
 
 label {
   display: grid;
-  gap: 7px;
+  gap: 6px;
   color: var(--muted);
-  font-size: 0.9rem;
+  font-size: 14px;
 }
 
 textarea,
 select,
 button {
   width: 100%;
-  border-radius: 7px;
+  border-radius: 4px;
   font: inherit;
 }
 
 textarea,
 select {
   border: 1px solid var(--line);
-  background: var(--panel-2);
+  background: var(--field);
   color: var(--text);
   outline: none;
 }
 
 textarea {
   resize: vertical;
-  min-height: 190px;
-  padding: 13px;
+  min-height: 170px;
+  padding: 10px;
   line-height: 1.5;
 }
 
 select {
-  min-height: 42px;
-  padding: 0 11px;
+  min-height: 38px;
+  padding: 0 10px;
 }
 
 input[type="range"] {
   width: 100%;
-  accent-color: var(--accent-2);
+  accent-color: var(--button);
 }
 
 textarea:focus,
-select:focus {
+select:focus,
+input[type="range"]:focus-visible {
   border-color: var(--focus);
-  box-shadow: 0 0 0 3px rgba(111, 177, 200, 0.14);
 }
 
 .control-grid {
@@ -152,12 +145,16 @@ select:focus {
 }
 
 button {
-  min-height: 48px;
+  min-height: 44px;
   border: 0;
-  background: var(--accent);
-  color: white;
-  font-weight: 750;
+  background: var(--button);
+  color: #ffffff;
+  font-weight: 600;
   cursor: pointer;
+}
+
+button:hover {
+  background: var(--button-hover);
 }
 
 button:disabled {
@@ -167,13 +164,14 @@ button:disabled {
 
 .status {
   margin-bottom: 12px;
-  font-size: 0.9rem;
+  font-size: 14px;
 }
 
 h2 {
   margin-bottom: 18px;
-  font-size: clamp(1.45rem, 3vw, 2.25rem);
-  line-height: 1.12;
+  font-size: 24px;
+  line-height: 1.2;
+  font-weight: 600;
 }
 
 audio {
@@ -185,29 +183,34 @@ audio {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 40px;
-  padding: 0 16px;
+  min-height: 38px;
+  padding: 0 14px;
   margin-bottom: 20px;
-  border-radius: 7px;
-  background: #2f5948;
-  color: white;
+  border-radius: 4px;
+  background: #2f5f46;
+  color: #ffffff;
   text-decoration: none;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 article {
   white-space: pre-wrap;
-  color: #e9dfd1;
-  line-height: 1.72;
-  font-size: 1rem;
+  color: var(--text);
+  line-height: 1.65;
+  font-size: 16px;
 }
 
 @media (max-width: 860px) {
+  .app-shell {
+    width: min(100% - 24px, 640px);
+    padding: 18px 0;
+  }
+
   .workspace {
     grid-template-columns: 1fr;
   }
 
   .result-panel {
-    min-height: 420px;
+    min-height: 360px;
   }
 }
